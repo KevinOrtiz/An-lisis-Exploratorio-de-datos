@@ -53,3 +53,14 @@ class ScrapyItem(Item):
 					listaReviews.append(review)
 
 		return listaReviews
+
+
+class TripAdvisorReviewItem(Item):
+
+	date = Field()
+	title = Field()
+	description = Field()
+	stars = Field()
+	helpful_votes = Field()
+
+	user = Field()
