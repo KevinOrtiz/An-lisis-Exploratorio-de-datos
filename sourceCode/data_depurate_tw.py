@@ -10,7 +10,8 @@ def get_fields_tw():
     tw_file = open('../data/Twitter/tweets_file.csv', 'w')
     cabecera = 'id_str,userId,longitude,latitude,words, lang, timestamp_ms \n'
     tw_file.write(cabecera)
-    data = open('tweets160616.json')
+    #Reemplazar por nombre archivo
+    data = open('TBA.json')
     # Cada line es un objeto json
     for line in data:
         if (line.strip() != '\n'):
