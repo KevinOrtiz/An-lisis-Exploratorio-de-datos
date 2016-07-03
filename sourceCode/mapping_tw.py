@@ -6,8 +6,8 @@ import gmplot
 import pandas as pd
 
 tweet_path = '../data/Twitter/test.csv'
-heapmap_path = '../data/tweets_heatmap.html'
-scatter_path = '../data/tweets_scatter.html'
+heapmap_path = '../data/Twitter/tweets_heatmap.html'
+scatter_path = '../data/Twitter/tweets_scatter.html'
 
 tweets = pd.read_csv(tweet_path)
 lats = tweets['latitude']
