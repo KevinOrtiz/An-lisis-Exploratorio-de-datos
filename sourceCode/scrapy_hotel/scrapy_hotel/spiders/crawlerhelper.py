@@ -1,6 +1,8 @@
 __author__ = 'cesar17'
 import HTMLParser
 import unicodedata
+import unidecode
+import string
 
 htmlparser = HTMLParser.HTMLParser()
 
@@ -22,9 +24,26 @@ def get_parsed_string(selector, xpath):
 	if len(extracted_list) > 0:
 		raw_string = extracted_list[0].strip()
 		if raw_string is not None:
+
+			raw_string = raw_string.strip()
+			raw_string = unidecode.unidecode(raw_string)
+			raw_string = string.replace(raw_string, '\n', '')
+			raw_string = string.replace(raw_string, '\"', '')
 			return_string = htmlparser.unescape(raw_string)
 	return return_string
 
 def get_parsed_string_multiple(selector, xpath):
 	return_string = ''
-	return selector.xpath(xpath).extract()
+	extracted_review = selector.xpath(xpath).extract()
+
+	list_reviews = []
+	for review in extracted_review:
+		if review:
+			raw_string = review.strip()
+			raw_string = unidecode.unidecode(raw_string)
+			raw_string = string.replace(raw_string, '\n', '')
+			raw_string = string.replace(raw_string, '\"', '')
+
+			list_reviews.append(raw_string)
+
+	return list_reviews

@@ -19,7 +19,7 @@ class tripAdvisorScrapper(CrawlSpider):
 	start_urls = ['https://www.tripadvisor.co/Hotels-g294308-Quito_Pichincha_Province-Hotels.html']
 
 	rules = (
-		#Rule(LinkExtractor(allow = ''), follow = True),
+		Rule(LinkExtractor(restrict_xpaths=".//div[contains(@class, 'pagination')]//a"), follow = True),
 		Rule(LinkExtractor(allow=['/Hotel_Review-g.*Quito_Pichincha_Province.*'], unique=True), callback='parse_items', follow = True),
 	) 
 
@@ -37,22 +37,16 @@ class tripAdvisorScrapper(CrawlSpider):
 		list_review = []
 		l.add_value('review', list_review)
 
-		# The default page contains the reviews but the reviews are shrink and need to click 'More' to view the complete content.
-		# An alternate way is to click one of the reviews in the page to open the expanded reviews display page.
-		# We're using this last solution to avoid AJAX here.
 		expanded_review_url = clean_parsed_string(get_parsed_string(sel, '//div[contains(@class, "basic_review")]//a/@href'))
+		
 		if expanded_review_url:
-			yield Request(url=self.base_uri + expanded_review_url, meta={'hotel_item': l, 'counter_page_review' : 0}, callback=self.parse_fetch_review)
+			url_review = self.base_uri + expanded_review_url
 
-		# #Selector de los REVIEWS
-		# selector_reviews = sel.css('#REVIEWS .reviewSelector')
-		# list_review = item.reviewsParser(selector_reviews)
-		# l.add_value('review',list_review)
-
-		# yield l.load_item()
+			yield Request(url=url_review, meta={'hotel_item': l, 'counter_page_review' : 0}, callback=self.parse_fetch_review)
 
 
 	def parse_fetch_review(self, response):
+		
 		hotel_item = response.meta['hotel_item']
 		sel = scrapy.selector.Selector(response)
 
@@ -63,37 +57,37 @@ class tripAdvisorScrapper(CrawlSpider):
 			counter_page_review = counter_page_review + 1
 
 			# TripAdvisor reviews for item.
-			snode_reviews = sel.xpath('//div[@id="REVIEWS"]/div/div[contains(@class, "review")]/div[@class="col2of2"]/div[@class="innerBubble"]')
+			snode_reviews = sel.xpath('//div[@id="REVIEWS"]//div[contains(@class, "review")]//div[@class="innerBubble"]')
+			
+			if len(snode_reviews) > 0:
+				snode_review = snode_reviews[0]
 
-			# Reviews for item.
-			for snode_review in snode_reviews:
+				# Obtengo el primer review de la pagina del hotel
 				tripadvisor_review_item = TripAdvisorReviewItem()
 
-				tripadvisor_review_item['title'] = clean_parsed_string(get_parsed_string(snode_review, 'div[@class="quote"]/text()'))
+				title_review = (get_parsed_string(snode_review, '//div[@class="quote"]/text()'))
+				
+				if title_review is None:
+					title_review = (get_parsed_string(snode_review, '//div[@class="quote"]/a/span[@class="noQuotes"]/text()'))
+					tripadvisor_review_item["title"] = clean_parsed_string(title_review)
+				else:
+					tripadvisor_review_item["title"] = clean_parsed_string(title_review)
 
 				# Review item description is a list of strings.
 				# Strings in list are generated parsing user intentional newline. DOM: <br>
-				tripadvisor_review_item['description'] = get_parsed_string_multiple(snode_review, 'div[@class="entry"]/p/text()')
+				tripadvisor_review_item['description'] = get_parsed_string_multiple(snode_review, '//div[@class="innerBubble"]//div[@class="entry"]/p/text()')
 				# Cleaning string and taking only the first part before whitespace.
-				snode_review_item_stars = clean_parsed_string(get_parsed_string(snode_review, 'div[@class="rating reviewItemInline"]/span[starts-with(@class, "rate")]/img/@alt'))
-				tripadvisor_review_item['stars'] = re.match(r'(\S+)', snode_review_item_stars).group()
-
-				snode_review_item_date = clean_parsed_string(get_parsed_string(snode_review, 'div[@class="rating reviewItemInline"]/span[@class="ratingDate"]/text()'))
-				snode_review_item_date = re.sub(r'Reviewed ', '', snode_review_item_date, flags=re.IGNORECASE)
-				snode_review_item_date = time.strptime(snode_review_item_date, '%B %d, %Y') if snode_review_item_date else None
-				tripadvisor_review_item['date'] = time.strftime('%Y-%m-%d', snode_review_item_date) if snode_review_item_date else None
-
 				hotel_item.get_collected_values('review').append(tripadvisor_review_item)
 
 
-			# Find the next page link if available and go on.
-			next_page_url = clean_parsed_string(get_parsed_string(sel, '//a[starts-with(@class, "guiArw sprite-pageNext ")]/@href'))
+			# Encontrar la siguiente pagina.
+			next_page_url = clean_parsed_string(get_parsed_string(sel, '//a[contains(@class, "pageNum")]/@href'))
+
 			if next_page_url and len(next_page_url) > 0:
 				yield Request(url=self.base_uri + next_page_url, meta={'hotel_item': hotel_item, 'counter_page_review' : counter_page_review}, callback=self.parse_fetch_review)
 			else:
 				yield hotel_item.load_item()
 
-		# Limitatore numero di pagine di review da passare. Totale review circa 5*N.
 		else:
 			yield hotel_item.load_item()
 		

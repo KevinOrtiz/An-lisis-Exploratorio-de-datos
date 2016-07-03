@@ -26,41 +26,22 @@ class ScrapyItem(Item):
 	)
 	location = Field()
 	review = Field()
-	
-
-	def reviewsParser(self, selector):
-		listaReviews = []
-
-		for i, elem in enumerate(selector):
-			#Primera estructura del contenido del review
-			review = elem.xpath('.//p[@class="partial_entry"]/text()').extract_first()
-			
-			if review:
-				review = review.strip()
-				review = unidecode.unidecode(review)
-				review = string.replace(review, '\n', ' ')
-				#Almacena en la lista el reiview de la primera estructura
-				listaReviews.append(review)
-			else:
-				#Segunda estructura del contenido del review
-				review = elem.xpath('.//p[@class="partial_entry"]/span[1]/text()').extract_first()
-
-				if review:
-					review = review.strip()
-					review = unidecode.unidecode(review)
-					review = string.replace(review, '\n', ' ')
-					#Almacena en la lista el reiview de la segunda estructura
-					listaReviews.append(review)
-
-		return listaReviews
 
 
 class TripAdvisorReviewItem(Item):
 
 	date = Field()
-	title = Field()
-	description = Field()
-	stars = Field()
-	helpful_votes = Field()
-
-	user = Field()
+	title = Field(
+		input_processor = MapCompose(unicode.strip, 
+									lambda x: unidecode.unidecode(x),
+									lambda y: string.replace(y, '\n', ' '),
+									lambda z: z.strip),
+		output_processor = Join(),
+	)
+	description = Field(
+		input_processor = MapCompose(unicode.strip, 
+									lambda x: unidecode.unidecode(x),
+									lambda y: string.replace(y, '\n', ' '),
+									lambda z: z.strip),
+		output_processor = Join(),
+	)
