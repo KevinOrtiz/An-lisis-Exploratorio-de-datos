@@ -1,6 +1,6 @@
 asdasd
-
-#Restaurantes
+#Objetos
+##Restaurantes
 - nombre
 - rating
 - tags
@@ -8,23 +8,28 @@ asdasd
 - horario (opcional)
 
 
-#Restaurantes comentarios
+##Restaurantes comentarios
 - review: comment, rating
 - ubicacion: lat, long, nombre lugar
 
-#Hoteles
+##Hoteles
 - nombre
 - rating
 - lugar
 - destacados (tags)
 
-#Hoteles comentarios
+##Hoteles comentarios
 idem Restaurantes comentarios
 
-#Cosas que hacer
+##Cosas que hacer
 - nombre
 - ubicacion
 - tags
 - rating
 
-
+#Analisis
+- Categorizacion por comida
+- Categorizacion por idiomas
+- Heatmaps
+- Categorizacion de cosas que hacer
+- Analisis de palabras
