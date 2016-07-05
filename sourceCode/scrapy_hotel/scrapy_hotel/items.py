@@ -45,3 +45,17 @@ class TripAdvisorReviewItem(Item):
 									lambda z: z.strip),
 		output_processor = Join(),
 	)
+
+class TripAdvisorItem(Item):
+
+	url = Field()
+	name = Field(
+		input_processor = MapCompose(unicode.strip, lambda x: unidecode.unidecode(x)),
+		output_processor = Join(),
+	)
+	rating = Field(
+		input_processor = MapCompose(unicode.strip, lambda x: x.replace(' de 5 estrellas','')),
+		output_processor = Join(),
+	)
+	location = Field()
+	reviews = Field()

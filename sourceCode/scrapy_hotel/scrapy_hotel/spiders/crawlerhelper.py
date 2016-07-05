@@ -32,6 +32,21 @@ def get_parsed_string(selector, xpath):
 			return_string = htmlparser.unescape(raw_string)
 	return return_string
 
+def get_parsed_raiting(selector, xpath):
+	return_string = ''
+	extracted_list = selector.xpath(xpath).extract()
+	if len(extracted_list) > 0:
+		raw_string = extracted_list[0].strip()
+		if raw_string is not None:
+
+			raw_string = raw_string.strip()
+			raw_string = unidecode.unidecode(raw_string)
+			raw_string = string.replace(raw_string, '\n', '')
+			raw_string = string.replace(raw_string, '\"', '')
+			raw_string = string.replace(raw_string, 'de 5 estrellas', '')
+			return_string = htmlparser.unescape(raw_string)
+	return return_string
+	
 def get_parsed_string_multiple(selector, xpath):
 	return_string = ''
 	extracted_review = selector.xpath(xpath).extract()
