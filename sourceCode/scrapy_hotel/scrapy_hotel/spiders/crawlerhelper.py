@@ -43,7 +43,7 @@ def get_parsed_raiting(selector, xpath):
 			raw_string = unidecode.unidecode(raw_string)
 			raw_string = string.replace(raw_string, '\n', '')
 			raw_string = string.replace(raw_string, '\"', '')
-			raw_string = string.replace(raw_string, 'de 5 estrellas', '')
+			raw_string = string.replace(raw_string, ' de 5 estrellas', '')
 			return_string = htmlparser.unescape(raw_string)
 	return return_string
 	

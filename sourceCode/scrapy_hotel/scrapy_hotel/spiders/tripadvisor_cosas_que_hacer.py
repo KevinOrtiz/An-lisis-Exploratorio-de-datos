@@ -31,16 +31,16 @@ class tripAdvisorScrapper(BaseSpider):
 	def parse(self, response):
 		sel = Selector(response)
 		#Selector de todos las Actividades
-		snode_cosas_que_hacers = sel.xpath('//div[@id="ACCOM_OVERVIEW"]//div[starts-with(@class, "property_details easyClear")]')
+		snode_cosas_que_hacers = sel.xpath('//div[@id="FILTERED_LIST"]//div[starts-with(@class, "entry")]')
 		
 		# Iteracion de cada actividad en la pagina semilla
 		for snode_cosas_que_hacer in snode_cosas_que_hacers:
 			#========Instanciar el item Actividades
 			tripadvisor_item = TripAdvisorItem()
 			#========Obtener la URL del Actividades
-			url_name = clean_parsed_string(get_parsed_string(snode_cosas_que_hacer, './/div[contains(@class, "listing_title")]/a[@class="property_title "]/@href'))
+			url_name = clean_parsed_string(get_parsed_string(snode_cosas_que_hacer, './/div[contains(@class, "property_title")]/a/@href'))
 			#========Obtener el nombre del Actividades
-			tripadvisor_item['name'] = clean_parsed_string(get_parsed_string(snode_cosas_que_hacer, './/div[contains(@class, "listing_title")]/a[@class="property_title "]/text()'))
+			tripadvisor_item['name'] = clean_parsed_string(get_parsed_string(snode_cosas_que_hacer, './/div[contains(@class, "property_title")]/a/text()'))
 
 			if url_name:
 				#========Concatenar la URL del Actividades
@@ -48,12 +48,15 @@ class tripAdvisorScrapper(BaseSpider):
 				yield Request(url=url_name, meta={'tripadvisor_item': tripadvisor_item}, callback=self.parse_search_page)
 
 		#Obtener la URL de la pagina siguiente (PAGINACION)
-		next_page_actividades = clean_parsed_string(get_parsed_string(sel, '//a[starts-with(@class, "nav next ui_button primary taLnk")]/@href'))
+		next_page_actividades = clean_parsed_string(get_parsed_string(sel, '//a[starts-with(@class, "nav next rndBtn ui_button primary taLnk")]/@href'))
 
 		if next_page_actividades and len(next_page_actividades) > 0:
 			#========Concatenar la URL de la paginacion de Actividades
 			url_actividades = self.base_uri + next_page_actividades
 			yield Request(url=url_actividades, meta={'tripadvisor_item': tripadvisor_item, 'counter_page_actividades' : 0}, callback=self.parse_pagination)
+		# Limites de numero de paginacion
+		else:
+			yield tripadvisor_item
 
 
 	#Funcion que obtiene los elementos del review
@@ -68,16 +71,16 @@ class tripAdvisorScrapper(BaseSpider):
 			counter_page_actividades = counter_page_actividades + 1
 
 			#Selector de todas las Actividades
-			snode_cosas_que_hacers = sel.xpath('//div[@id="ACCOM_OVERVIEW"]//div[starts-with(@class, "property_details easyClear")]')
+			snode_cosas_que_hacers = sel.xpath('//div[@id="FILTERED_LIST"]//div[starts-with(@class, "entry")]')
 			
 			# Iteracion de cada Actividades en la pagina semilla
 			for snode_cosas_que_hacer in snode_cosas_que_hacers:
 				#========Instanciar el item Actividades
 				tripadvisor_item = TripAdvisorItem()
 				#========Obtener la URL del Actividades
-				url_name = clean_parsed_string(get_parsed_string(snode_cosas_que_hacer, './/div[contains(@class, "listing_title")]/a[@class="property_title "]/@href'))
+				url_name = clean_parsed_string(get_parsed_string(snode_cosas_que_hacer, './/div[contains(@class, "property_title")]/a/@href'))
 				#========Obtener el nombre del Actividades
-				tripadvisor_item['name'] = clean_parsed_string(get_parsed_string(snode_cosas_que_hacer, './/div[contains(@class, "listing_title")]/a[@class="property_title "]/text()'))
+				tripadvisor_item['name'] = clean_parsed_string(get_parsed_string(snode_cosas_que_hacer, './/div[contains(@class, "property_title")]/a/text()'))
 
 				if url_name:
 					#========Concatenar la URL del Actividades
@@ -85,12 +88,16 @@ class tripAdvisorScrapper(BaseSpider):
 					yield Request(url=url_name, meta={'tripadvisor_item': tripadvisor_item}, callback=self.parse_search_page)
 			
 			#Obtener la URL de la pagina siguiente (PAGINACION)
-			next_page_actividades = clean_parsed_string(get_parsed_string(sel, '//a[starts-with(@class, "nav next ui_button primary taLnk")]/@href'))
+			next_page_actividades = clean_parsed_string(get_parsed_string(sel, '//a[starts-with(@class, "nav next rndBtn ui_button primary taLnk")]/@href'))
 
 			if next_page_actividades and len(next_page_actividades) > 0:
 				#========Concatenar la URL de la paginacion de Actividades
 				url_actividades = self.base_uri + next_page_actividades
 				yield Request(url=url_actividades, meta={'tripadvisor_item': tripadvisor_item, 'counter_page_actividades' : counter_page_actividades}, callback=self.parse_pagination)
+			# Limites de numero de paginacion
+			else:
+				yield tripadvisor_item
+
 
 
 	# Buscar los raiting, ubucacion y los links de los reviews.
@@ -101,7 +108,7 @@ class tripAdvisorScrapper(BaseSpider):
 		#========Lista el review del Actividades
 		tripadvisor_item['reviews'] = []
 		#========Obtener el raiting del Actividades
-		tripadvisor_item['rating'] = clean_parsed_string(get_parsed_string(sel, '//*[@id="HEADING_GROUP"]/div/div[2]/div[1]/div/span/img/@alt'))
+		tripadvisor_item['rating'] = clean_parsed_string(get_parsed_raiting(sel, '//*[@id="HEADING_GROUP"]/div/div[2]/div[1]/div/span/img/@alt'))
 		lng = clean_parsed_string(get_parsed_string(sel, '//*[@id="NEARBY_TAB"]/div/div[1]/div[3]/@data-lng'))
 		lat = clean_parsed_string(get_parsed_string(sel, '//*[@id="NEARBY_TAB"]/div/div[1]/div[3]/@data-lat'))
 		pos = [str(lng), str(lat)]		#Almacena la Longitud y la Latitud del Actividades y lo guarda en una lista
@@ -113,6 +120,9 @@ class tripAdvisorScrapper(BaseSpider):
 			#========Concatenar la URL del titulo del review
 			url_review = self.base_uri + expanded_review_url
 			yield Request(url=url_review, meta={'tripadvisor_item': tripadvisor_item, 'counter_page_review' : 0}, callback=self.parse_fetch_review)
+		#Aunque no tenga Review aun asi guarda registro del Hotel
+		else: 
+			yield tripadvisor_item
 
 
 	# Si la pagina encuentra un review, hace su analisis exahustivo.
@@ -148,6 +158,7 @@ class tripAdvisorScrapper(BaseSpider):
 				#========Concatenar la URL del titulo de la paginacion de los review
 				url_review = self.base_uri + next_page_url
 				yield Request(url=url_review, meta={'tripadvisor_item': tripadvisor_item, 'counter_page_review' : counter_page_review}, callback=self.parse_fetch_review)
+			#Si no existe la paginacion siguiente, guardo la paginacion actual
 			else:
 				yield tripadvisor_item
 
