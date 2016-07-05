@@ -32,7 +32,9 @@ def get_fields_tw():
                     latitude = str(tweet['coordinates']['coordinates'][1])
                     texto = tweet['text']
                     texto = re.sub(r'@(.+?)\s+', '', texto)
+                    texto = re.sub(r'@(.+?)\Z', '', texto)
                     texto = re.sub(r'#(.+?)\s+', '', texto)
+                    texto = re.sub(r'#(.+?)\Z', '', texto)
                     texto = re.sub(r'http(.+?)\s+', '', texto)
                     texto = re.sub(r'http(.+?)\Z', '', texto)
                     texto = re.sub(r'jaja{1,}?', '', texto)
@@ -40,7 +42,7 @@ def get_fields_tw():
                     texto = re.sub(r'jeje{1,}?', '', texto)
                     content = normalization(texto, tweet['lang'])
                     #No devuelve tweet si está vacío tras normalizar y eliminar stopwords
-                    if (content != ""):
+                    if (content != "" and len(texto)>=3):
                         for h in tweet['entities']['hashtags']:
                             hashtags = hashtags + '&' + h['text'].encode('ascii','ignore')
                         if not hashtags:
