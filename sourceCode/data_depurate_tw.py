@@ -42,7 +42,7 @@ def get_fields_tw():
                     texto = re.sub(r'jeje{1,}?', '', texto)
                     content = normalization(texto, tweet['lang'])
                     #No devuelve tweet si está vacío tras normalizar y eliminar stopwords
-                    if (content != "" and len(texto)>=3):
+                    if (content != "" and len(content)>=3):
                         for h in tweet['entities']['hashtags']:
                             hashtags = hashtags + '&' + h['text'].encode('ascii','ignore')
                         if not hashtags:
