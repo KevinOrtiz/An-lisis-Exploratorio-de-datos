@@ -6,21 +6,22 @@ import json
 import re
 import unicodedata
 import hunspell
+import sys
 from nltk.corpus import stopwords
 from nltk.stem.snowball import SnowballStemmer
 
 
 def get_fields_tw():
-    tw_file = open('../data/Twitter/tweets_file.csv', 'w')
-    tw_file_no_text = open('../data/Twitter/tweets_noText.csv', 'w')
+    tw_file = open('../data/Twitter/tweets_depurated.csv', 'w')
+    tw_file_no_text = open('../data/Twitter/tweets_depurated_noText.csv', 'w')
     cabecera = 'id_str,longitude,latitude,words,lang,timestamp_ms,n_retw,hashtags\n'
     cabecera_no_text = 'id_str,longitude,latitude,lang,timestamstamp_ms,n_retw\n'
     tw_file.write(cabecera)
     tw_file_no_text.write(cabecera_no_text)
     #Reemplazar por nombre archivo
-    data = open('text.json')
+    # data = open('text.json')
     # Cada line es un objeto json
-    for line in data:
+    for line in sys.stdin:
         line = line
         if (line.strip() != '\n'):
             hashtags = ''
@@ -52,12 +53,10 @@ def get_fields_tw():
                                + latitude + ',' + tweet['lang']+','+ tweet['timestamp_ms']\
                                + ',' + str(tweet['retweet_count']) + '\n'
                     tw_file_no_text.write(line_noText)
-                else:
-                    print tweet['coordinates']
+
             except ValueError:
                 print 'Decoding JSON has failed'
     tw_file.close()
-    data.close()
 
 def normalization(text, lang):
     text = text.lower()
