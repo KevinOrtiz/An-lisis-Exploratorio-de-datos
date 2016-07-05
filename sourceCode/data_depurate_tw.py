@@ -4,6 +4,7 @@ __author__ = 'madevelasco'
 
 import json
 import re
+import unicodedata
 from nltk.corpus import stopwords
 
 def get_fields_tw():
@@ -11,9 +12,10 @@ def get_fields_tw():
     cabecera = 'id_str,userId,longitude,latitude,words, lang, timestamp_ms \n'
     tw_file.write(cabecera)
     #Reemplazar por nombre archivo
-    data = open('TBA.json')
+    data = open('tweets170616.json')
     # Cada line es un objeto json
     for line in data:
+        line = line
         if (line.strip() != '\n'):
             try:
                 tweet = json.loads(line)
@@ -37,6 +39,11 @@ def get_fields_tw():
 
 def normalization(text, lang):
     text = text.lower()
+    other = ''
+    for element in text:
+        other =other+remove_accents(element)
+    text = other
+
     words = re.findall(r'\w+', text, flags=re.UNICODE | re.LOCALE)
     depured = ""
     for word in words:
@@ -47,7 +54,12 @@ def normalization(text, lang):
         else:
             if word not in stopwords.words('spanish'):
                 depured = depured + "&" + word
+
     return depured
+
+def remove_accents(input_str):
+    nkfd_form = unicodedata.normalize('NFKD', unicode(input_str))
+    return u"".join([c for c in nkfd_form if not unicodedata.combining(c)])
 
 if __name__ == '__main__':
     get_fields_tw()
