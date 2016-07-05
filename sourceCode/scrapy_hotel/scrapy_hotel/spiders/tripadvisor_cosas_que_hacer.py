@@ -31,16 +31,16 @@ class tripAdvisorScrapper(BaseSpider):
 	def parse(self, response):
 		sel = Selector(response)
 		#Selector de todos las Actividades
-		snode_cosas_que_hacers = sel.xpath('//div[@id="ACCOM_OVERVIEW"]//div[starts-with(@class, "property_details easyClear")]')
+		snode_cosas_que_hacers = sel.xpath('//div[@id="FILTERED_LIST"]//div[starts-with(@class, "entry")]')
 		
 		# Iteracion de cada actividad en la pagina semilla
 		for snode_cosas_que_hacer in snode_cosas_que_hacers:
 			#========Instanciar el item Actividades
 			tripadvisor_item = TripAdvisorItem()
 			#========Obtener la URL del Actividades
-			url_name = clean_parsed_string(get_parsed_string(snode_cosas_que_hacer, './/div[contains(@class, "listing_title")]/a[@class="property_title "]/@href'))
+			url_name = clean_parsed_string(get_parsed_string(snode_cosas_que_hacer, './/div[contains(@class, "property_title")]/a/@href'))
 			#========Obtener el nombre del Actividades
-			tripadvisor_item['name'] = clean_parsed_string(get_parsed_string(snode_cosas_que_hacer, './/div[contains(@class, "listing_title")]/a[@class="property_title "]/text()'))
+			tripadvisor_item['name'] = clean_parsed_string(get_parsed_string(snode_cosas_que_hacer, './/div[contains(@class, "property_title")]/a/text()'))
 
 			if url_name:
 				#========Concatenar la URL del Actividades
@@ -48,7 +48,7 @@ class tripAdvisorScrapper(BaseSpider):
 				yield Request(url=url_name, meta={'tripadvisor_item': tripadvisor_item}, callback=self.parse_search_page)
 
 		#Obtener la URL de la pagina siguiente (PAGINACION)
-		next_page_actividades = clean_parsed_string(get_parsed_string(sel, '//a[starts-with(@class, "nav next ui_button primary taLnk")]/@href'))
+		next_page_actividades = clean_parsed_string(get_parsed_string(sel, '//a[starts-with(@class, "nav next rndBtn ui_button primary taLnk")]/@href'))
 
 		if next_page_actividades and len(next_page_actividades) > 0:
 			#========Concatenar la URL de la paginacion de Actividades
@@ -68,16 +68,16 @@ class tripAdvisorScrapper(BaseSpider):
 			counter_page_actividades = counter_page_actividades + 1
 
 			#Selector de todas las Actividades
-			snode_cosas_que_hacers = sel.xpath('//div[@id="ACCOM_OVERVIEW"]//div[starts-with(@class, "property_details easyClear")]')
+			snode_cosas_que_hacers = sel.xpath('//div[@id="FILTERED_LIST"]//div[starts-with(@class, "entry")]')
 			
 			# Iteracion de cada Actividades en la pagina semilla
 			for snode_cosas_que_hacer in snode_cosas_que_hacers:
 				#========Instanciar el item Actividades
 				tripadvisor_item = TripAdvisorItem()
 				#========Obtener la URL del Actividades
-				url_name = clean_parsed_string(get_parsed_string(snode_cosas_que_hacer, './/div[contains(@class, "listing_title")]/a[@class="property_title "]/@href'))
+				url_name = clean_parsed_string(get_parsed_string(snode_cosas_que_hacer, './/div[contains(@class, "property_title")]/a/@href'))
 				#========Obtener el nombre del Actividades
-				tripadvisor_item['name'] = clean_parsed_string(get_parsed_string(snode_cosas_que_hacer, './/div[contains(@class, "listing_title")]/a[@class="property_title "]/text()'))
+				tripadvisor_item['name'] = clean_parsed_string(get_parsed_string(snode_cosas_que_hacer, './/div[contains(@class, "property_title")]/a/text()'))
 
 				if url_name:
 					#========Concatenar la URL del Actividades
@@ -85,7 +85,7 @@ class tripAdvisorScrapper(BaseSpider):
 					yield Request(url=url_name, meta={'tripadvisor_item': tripadvisor_item}, callback=self.parse_search_page)
 			
 			#Obtener la URL de la pagina siguiente (PAGINACION)
-			next_page_actividades = clean_parsed_string(get_parsed_string(sel, '//a[starts-with(@class, "nav next ui_button primary taLnk")]/@href'))
+			next_page_actividades = clean_parsed_string(get_parsed_string(sel, '//a[starts-with(@class, "nav next rndBtn ui_button primary taLnk")]/@href'))
 
 			if next_page_actividades and len(next_page_actividades) > 0:
 				#========Concatenar la URL de la paginacion de Actividades
