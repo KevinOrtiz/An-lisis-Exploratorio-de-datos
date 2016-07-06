@@ -1,20 +1,23 @@
+# -*- encoding: utf-8 -*-
+
+__author__ = 'josanvel'
+
 import re
 import time
 from scrapy.spider import BaseSpider
+from scrapy.spiders import CrawlSpider, Rule
 from scrapy.selector import Selector
 from scrapy.http import Request
-from scrapy.spiders import CrawlSpider, Rule
 from scrapy.linkextractors import LinkExtractor
 from scrapy import selector, loader
 from scrapy_hotel.items import *
-from scrapy_hotel.items import ScrapyItem, TripAdvisorReviewItem
 from crawlerhelper import *
 import scrapy
 
 # Constants.
 # Max reviews pages to crawl.
 # Reviews collected are around: 5 * MAX_REVIEWS_PAGES
-MAX_REVIEWS_PAGES = 50
+MAX_REVIEWS_PAGES = 500
 
 class tripAdvisorScrapper(BaseSpider):
 	name = "tripadvisor_hotel"
@@ -54,10 +57,6 @@ class tripAdvisorScrapper(BaseSpider):
 			url_hotels = self.base_uri + next_page_hotels
 			yield Request(url=url_hotels, meta={'tripadvisor_item': tripadvisor_item, 'counter_page_hotels' : 0}, callback=self.parse_pagination)
 
-		# Limites de numero de paginacion
-		else:
-			yield tripadvisor_item
-
 
 	#Funcion que obtiene los elementos del review
 	# Page type: /Hoteles_Review -- pagination
@@ -72,7 +71,6 @@ class tripAdvisorScrapper(BaseSpider):
 
 			#Selector de todas las Hoteles
 			snode_hotels = sel.xpath('//div[@id="ACCOM_OVERVIEW"]//div[starts-with(@class, "property_details easyClear")]')
-			
 			# Iteracion de cada Hoteles en la pagina semilla
 			for snode_hotel in snode_hotels:
 				#========Instanciar el item Hoteles
@@ -94,9 +92,6 @@ class tripAdvisorScrapper(BaseSpider):
 				#========Concatenar la URL de la paginacion de Hoteles
 				url_hotels = self.base_uri + next_page_hotels
 				yield Request(url=url_hotels, meta={'tripadvisor_item': tripadvisor_item, 'counter_page_hotels' : counter_page_hotels}, callback=self.parse_pagination)
-			# Limites de numero de paginacion
-			else:
-				yield tripadvisor_item
 
 
 	# Buscar los raiting, ubucacion y los links de los reviews.
@@ -110,7 +105,10 @@ class tripAdvisorScrapper(BaseSpider):
 		tripadvisor_item['rating'] = clean_parsed_string(get_parsed_raiting(sel, '//*[@id="HEADING_GROUP"]/div/div[2]/div[1]/div/span/img/@alt'))
 		lng = clean_parsed_string(get_parsed_string(sel, '//*[@id="NEARBY_TAB"]/div/div[1]/div[3]/@data-lng'))
 		lat = clean_parsed_string(get_parsed_string(sel, '//*[@id="NEARBY_TAB"]/div/div[1]/div[3]/@data-lat'))
-		pos = [str(lng), str(lat)]		#Almacena la Longitud y la Latitud del Hoteles y lo guarda en una lista
+		if lng is None and lat is None:
+			pos = [lng, lat]
+		else:  
+			pos = [str(lng), str(lat)]		#Almacena la Longitud y la Latitud del Hoteles y lo guarda en una lista
 		#========Obtener la ubicacion del Hoteles
 		tripadvisor_item['location'] = pos
 
@@ -146,6 +144,7 @@ class tripAdvisorScrapper(BaseSpider):
 				tripadvisor_review_item['title'] = clean_parsed_string(get_parsed_string(snode_review, 'div[@class="quote"]/text()'))
 				if tripadvisor_review_item['title'] is None:
 					tripadvisor_review_item['title'] = clean_parsed_string(get_parsed_string(snode_review, 'div[@class="quote"]/a/span/text()'))
+				
 				#========Obtener la descripcion del review del Hoteles
 				tripadvisor_review_item['description'] = get_parsed_string_multiple(snode_review, 'div[@class="entry"]/p/text()')
 				#========Guardar el titulo y la descripcion del review del Hoteles
