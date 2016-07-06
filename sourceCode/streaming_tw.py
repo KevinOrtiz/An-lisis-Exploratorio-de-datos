@@ -11,7 +11,7 @@ consumer_key = "DbFH6f0sMxH7lWZ26WvdGzyfc"
 consumer_secret = "rB1ZfJvEjfDGN50i9He7Lg8uBXjjBkfDL42qhN4s3knIsxQkS1"
 access_token = "156813469-kDtZ90Mr5TA0AIKhrqLIxCVFX4HuM5e3VBJwc2yD"
 access_token_secret = "cT8V9ncpJ8gptZiSxVXgag6bkpNboxjLwmar0JZULSI08"
-file_raw = open('../data/Twitter/data_stream_' + time.strftime('%Y%m%d') + '.json', 'w')
+file_raw = open('../data/Twitter/data_stream_' + time.strftime('%Y%m%d-%H%M%S') + '.json', 'w')
 
 class StdOutListener(StreamListener):
     """ A listener handles tweets that are received from the stream.
@@ -19,9 +19,8 @@ class StdOutListener(StreamListener):
     """
     def on_data(self, data):
         tweet = json.loads(data)
-        if tweet['coordinates']:
-            file_raw.write(data)
-            print (tweet['text'])
+        # if tweet['coordinates']:
+        file_raw.write(data)
     	# print (tweet['coordinates'])
     	# print ("jnajsj")
         return True
@@ -34,6 +33,7 @@ class StdOutListener(StreamListener):
         elif status_code == 420:
             #returning False in on_data disconnects the stream
             print (status_code)
+        return True
 
 if __name__ == '__main__':
     l = StdOutListener()
@@ -41,7 +41,14 @@ if __name__ == '__main__':
     auth.set_access_token(access_token, access_token_secret)
 
     stream = Stream(auth, l)
-    stream.filter(locations=[-78.573727,-0.260581,-78.395496,-0.065575,])
+    try:
+        stream.filter(locations=[-78.573727,-0.260581,-78.395496,-0.065575])
+    except KeyboardInterrupt:
+        file_raw.close()
+    except AttributeError:
+        print ("*****AttributeError*****")
+        file_raw.close()
+
 
     # -78.573727,-0.260581,-78.395496,-0.065575  Quito
     # -79.943733,-2.251961,-79.864769,-2.068757 Guayaquil

@@ -3,3 +3,4 @@
 *.json
 test.py
 *.csv
+*.html
