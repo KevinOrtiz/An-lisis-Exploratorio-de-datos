@@ -13,28 +13,20 @@ class itemsAlquiler(sc.Item):
         			out_processor = Join(),
 
     )
-    tituloComentario = sc.Field(
-        			input_processor = MapCompose(unicode.strip,
-        				lambda x:unidecode.unidecode(x),
-        				lambda y:string.replace(y,'\n','')),
-        			out_processor = Join(),
-   )
-    latitud = sc.Field()
-    longitud = sc.Field()
+    posicion = sc.Field()
     estrellas = sc.Field(
         			input_processor = MapCompose(unicode.strip,
         			lambda x:x.replace('de 5 estrellas','')),
         			out_processor = Join(),
    )
-    comentarios = sc.Field(
-        			input_processor = MapCompose(unicode.strip,
-        				lambda x:unidecode.unidecode(x),
-        				lambda y:string.replace(y,'\n','')),
-        			out_processor = Join(),
-
-   )
+    
     precio = sc.Field(
         			input_processor = MapCompose(unicode.strip,
         			lambda x:unidecode.unidecode(x)),
         			out_processor = Join(),
     )
+    categoria = sc.Field()
+    itemsReviews = sc.Field()
+class itemsReviews(sc.Item):
+    tituloComentario = sc.Field()
+    comentarios = sc.Field()
