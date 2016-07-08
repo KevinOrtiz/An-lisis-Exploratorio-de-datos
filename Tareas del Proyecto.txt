@@ -1,0 +1,21 @@
+Voice -  Setear el numero de tweet por voice
+
+Cuantos usuarios hay en el dataset
+
+Filtrar tipos de usuario -> futuro
+
+Sacar el ranking por voice y numero de tweet
+
+Hacer un top 5
+
+Sacar el degree promedio del grafo
+
+Colocarle pesos a los arcos
+
+Filtrar stopword en Ingles
+
+Filtrar lugares que son de personas locales
+
+Filtrar lugares que son de personas internacionales
+
+Top lugares de mayor helpful comment
