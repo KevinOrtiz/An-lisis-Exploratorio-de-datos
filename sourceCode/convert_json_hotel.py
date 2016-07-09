@@ -8,7 +8,7 @@ import string
 
 def get_fields_json():
 	#Abro el archivo JSON de los hoteles
-	with open('scrapy_hotel/scrapy_hotel/spiders/data_hotel_completo.json') as data_file:
+	with open('scrapy_hotel/scrapy_hotel/spiders/data_hotel.json') as data_file:
 		data_json = json.load(data_file)
 
 	#Creo el archivo CSV

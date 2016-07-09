@@ -124,6 +124,8 @@ class tripAdvisorScrapper(BaseSpider):
 
 		#========Obtener los tags de Actividades
 		tripadvisor_item['tag'] = list_tags
+		yield tripadvisor_item
+		"""
 
 		expanded_review_url = clean_parsed_string(get_parsed_string(sel, '//div[contains(@class, "basic_review")]//a/@href'))
 		if expanded_review_url:
@@ -133,6 +135,7 @@ class tripAdvisorScrapper(BaseSpider):
 		#Aunque no tenga Review aun asi se guarda registro de la Actividad
 		else: 
 			yield tripadvisor_item
+		"""
 
 
 	# Si la pagina encuentra un review, hace su analisis exahustivo.

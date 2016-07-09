@@ -15,7 +15,7 @@ def add_category_actividades():
 														else 'Bueno' if (x > 2 and x <= 4) 
 														else 'Regular')
 	#Guardo el dataframe de actividades en un nuevo archivo CSV
-	actiidades.to_csv('../data/TripAdvisor/data_actividades_categorizado.csv')
+	actiidades.to_csv('../data/TripAdvisor/data_actividades_categorizado.csv', index=False)
 
 if __name__ == '__main__':
 	add_category_actividades()
