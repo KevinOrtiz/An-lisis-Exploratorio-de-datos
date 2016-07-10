@@ -13,10 +13,13 @@ MAX_REVIEWS_PAGES = 500
 
 class SpiderAlquiler(BaseSpider):
 	name = "tripadvisor_Alquiler"
-	allowed_domains = ["tripadvisor.co"]
+	allowed_domains = ["tripadvisor.co","tripadvisor.com","fr.tripadvisor.ca","tripadvisor.de"]
 	base_uri = "http://www.tripadvisor.co"
 	start_urls = [
-		base_uri + "/VacationRentals-g294308-Reviews-Quito_Pichincha_Province-Vacation_Rentals.html#vrListing_6579859"
+		base_uri + "/VacationRentals-g294308-Reviews-Quito_Pichincha_Province-Vacation_Rentals.html"
+		"https://www.tripadvisor.com/VacationRentals-g294308-Reviews-Quito_Pichincha_Province-Vacation_Rentals.html"
+		"https://fr.tripadvisor.ca/VacationRentals-g294308-Reviews-Quito_Pichincha_Province-Vacation_Rentals.html"
+		"https://www.tripadvisor.de/VacationRentals-g294308-Reviews-Quito_Pichincha_Province-Vacation_Rentals.html"
 	]
 
 
@@ -133,16 +136,18 @@ class SpiderAlquiler(BaseSpider):
 			counter_page_review = counter_page_review + 1
 
 			# TripAdvisor reviews for item.
-			snode_reviews = sel.xpath('//div[@id="REVIEWS"]//div[@class="vrrmReviewScroller"]//div[@class="col2of2"]/div[@class="innerBubble"]')
+			snode_reviews = sel.xpath('//div[@class="deckB review_collection "]//div[@class="vrrmReviewScroller"]//div[@class="col2of2"]/div[@class="innerBubble"]')
 
 			# Reviews for item.
+			print snode_reviews
+			tripadvisor_review_item = itemsReviews()
 			for snode_review in snode_reviews:
 				#========Instanciar el item del review del Actividades
-				tripadvisor_review_item = itemsReviews()
+				
 				#========Obtener el titulo del review del Actividades
-				tripadvisor_review_item['tituloComentario'] = clean_parsed_string(get_parsed_string(snode_review,".//div[@id='REVIEWS']//div[@class='wrap']//div[@class='quote']//a/text()kortikort"))
+				tripadvisor_review_item['tituloComentario'] = clean_parsed_string(get_parsed_string(snode_review,".//div[@class='wrap']//div[@class='quote']/a/text()"))
 				#========Obtener la descripcion del review del Actividades
-				tripadvisor_review_item['comentarios'] = get_parsed_string_multiple(snode_review, "//div[starts-with(@class,'quote vrReviewText')]/p/span/text()")
+				tripadvisor_review_item['comentarios'] = get_parsed_string_multiple(snode_review, ".//div[@class='summary']//p/span/text()")
 				#========Guardar el titulo y la descripcion del review del Actividades
 				tripadvisor_item['itemsReviews'].append(tripadvisor_review_item)
 

@@ -26,3 +26,8 @@ class itemsRestaurantes(sc.Item):
 class itemsReviews(sc.Item):
         tituloComentario = sc.Field()
         comentarios = sc.Field()
+        date_review = sc.Field()
+        origen_usuario = sc.Field()
+        numero_reviews = sc.Field()
+        numero_restaurant_review = sc.Field()
+        votos_utiles = sc.Field()
