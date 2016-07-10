@@ -137,7 +137,7 @@ if __name__ == '__main__':
     loc = GeoLocation.from_degrees(26.062951, -80.238853)
     distance = 1  # 1 kilometer
     SW_loc, NE_loc = loc.bounding_locations(distance)
-    print SW_loc.deg_lat
+    print SW_loc
     print NE_loc
     print loc.distance_to(SW_loc)
     print loc.distance_to(NE_loc)
