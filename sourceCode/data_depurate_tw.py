@@ -44,10 +44,11 @@ def get_fields_tw():
                     content = normalization(texto)
 
                     #Time information
-                    esdia = isDay(tweet['timestamp_ms'])
-                    entresemana = isWeekDay(tweet['timestamp_ms'])
-                    dia = day(tweet['timestamp_ms'])
-                    hora = hour(tweet['timestamp_ms'])
+                    timestamp_ms = float(tweet['timestamp_ms'])
+                    esdia = isDay(timestamp_ms)
+                    entresemana = isWeekDay(timestamp_ms)
+                    dia = str(day(timestamp_ms))
+                    hora = str(hour(timestamp_ms))
 
                     #No devuelve tweet si está vacío tras normalizar y eliminar stopwords
                     if (content != "" ):
@@ -133,11 +134,11 @@ def isWeekDay(tiempo):
 
 def day(tiempo):
     fecha = datetime.datetime.fromtimestamp(tiempo / 1000.0)
-    return  fecha.weekday()
+    return fecha.weekday()
 
 def hour(tiempo):
     fecha = datetime.datetime.fromtimestamp(tiempo / 1000.0)
-    return fecha.hour()
+    return fecha.hour
 
 def deleteConsecutives(word):
     if re.search(r'(.)\1\1', word):
