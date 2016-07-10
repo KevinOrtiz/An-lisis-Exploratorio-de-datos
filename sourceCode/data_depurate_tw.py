@@ -16,7 +16,7 @@ def get_fields_tw():
     tw_file = open('../data/Twitter/tweets_depurated.csv', 'w')
     tw_file_no_text = open('../data/Twitter/tweets_depurated_noText.csv', 'w')
     cabecera = 'id_str,longitude,latitude,words,lang,timestamp_ms,n_retw,hashtags,dia,hora,isDay,isWeekDay\n'
-    cabecera_no_text = 'id_str,longitude,latitude,lang,timestamstamp_ms,n_retw,dia,hora,isDay,isWeekDay\n'
+    cabecera_no_text = 'id_str,longitude,latitude,lang,timestamp_ms,n_retw,dia,hora,isDay,isWeekDay\n'
     tw_file.write(cabecera)
     tw_file_no_text.write(cabecera_no_text)
     #Reemplazar por nombre archivo
