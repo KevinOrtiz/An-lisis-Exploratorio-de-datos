@@ -87,7 +87,7 @@ def normalization(text):
         word = deleteConsecutives(word)
         #Won't pass if word lenght is lower than 2
         if (len(re.findall('[a-zA-Z]', word))>2):
-            if (word not in local_stopwords):
+            if word not in local_stopwords:
                 alt1 = word
                 alt2 = word
                 flag = False
