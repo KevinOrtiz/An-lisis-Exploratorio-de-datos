@@ -72,6 +72,7 @@ def get_fields_tw():
     tw_file.close()
 
 def normalization(text):
+    local_stopwords = ['quito', 'ecuador', 'pichincha', 'quitoecuador', 'ecuadorquito', 'post', 'photo']
     text = text.lower()
     other = ''
     hobj_spanish = hunspell.HunSpell('dic_spanish/Spanish.dic', 'dic_spanish/Spanish.aff')
@@ -86,7 +87,7 @@ def normalization(text):
         word = deleteConsecutives(word)
         #Won't pass if word lenght is lower than 2
         if (len(re.findall('[a-zA-Z]', word))>2):
-            if (word != 'quito' and word != 'ecuador' and word != 'pichincha'):
+            if word not in local_stopwords:
                 alt1 = word
                 alt2 = word
                 flag = False
