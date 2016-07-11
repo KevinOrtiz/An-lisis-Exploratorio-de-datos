@@ -15,8 +15,8 @@ MAX_REVIEWS_PAGES = 500
 
 class tripAdvisorScrapper(BaseSpider):
 	name = "tripadvisor_restaurant"
-	allowed_domains = ["tripadvisor.co"]
-	base_uri = "http://www.tripadvisor.co"
+	allowed_domains = ["tripadvisor.com"]
+	base_uri = "http://www.tripadvisor.com"
 	start_urls = [
 		base_uri + "/Restaurants-g294308-Quito_Pichincha_Province.html"
 	]
@@ -155,6 +155,12 @@ class tripAdvisorScrapper(BaseSpider):
 				
 				#========Obtener la descripcion del review del Actividades
 				tripadvisor_review_item['comentarios'] = get_parsed_string_multiple(snode_review, 'div[@class="entry"]/p/text()')
+				tripadvisor_review_item['origen_usuario'] = get_parsed_string_multiple(sel, '//div[@id="REVIEWS"]//div[@class="location"]/text()')
+				tripadvisor_review_item['date_review'] = get_parsed_string_multiple(sel,'//div[@id="REVIEWS"]//span[@class="ratingDate"]/text()')
+				tripadvisor_review_item['numero_reviews']=get_parsed_string_multiple(sel,'//div[@id="REVIEWS"]//div[@class="reviewerBadge badge"]//span[@class="badgeText"]/text()')
+				tripadvisor_review_item['numero_restaurant_review']=get_parsed_string_multiple(sel,'//div[@id="REVIEWS"]//div[@class="contributionReviewBadge badge"]//span[@class="badgeText"]/text()')
+				tripadvisor_review_item['votos_utiles']=get_parsed_string_multiple(sel,'//div[@id="REVIEWS"]//div[@class="helpfulVotesBadge badge no_cpu"]//span[@class="badgeText"]/text()')
+
 				#========Guardar el titulo y la descripcion del review del Actividades
 				tripadvisor_item['itemsReviews'].append(tripadvisor_review_item)
 
@@ -173,7 +179,7 @@ class tripAdvisorScrapper(BaseSpider):
 			yield tripadvisor_item
 
 
-rs
+
 
 
 

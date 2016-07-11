@@ -1,0 +1,2 @@
+Se generan archivos que contienen los tweets que se encuentran alredor de 200 metros a la
+redonda del POI que pertenece a cada archivo

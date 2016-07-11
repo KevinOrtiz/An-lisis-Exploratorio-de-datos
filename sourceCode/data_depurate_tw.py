@@ -16,7 +16,7 @@ def get_fields_tw():
     tw_file = open('../data/Twitter/tweets_depurated.csv', 'w')
     tw_file_no_text = open('../data/Twitter/tweets_depurated_noText.csv', 'w')
     cabecera = 'id_str,longitude,latitude,words,lang,timestamp_ms,n_retw,hashtags,dia,hora,isDay,isWeekDay\n'
-    cabecera_no_text = 'id_str,longitude,latitude,lang,timestamstamp_ms,n_retw,dia,hora,isDay,isWeekDay\n'
+    cabecera_no_text = 'id_str,longitude,latitude,lang,timestamp_ms,n_retw,dia,hora,isDay,isWeekDay\n'
     tw_file.write(cabecera)
     tw_file_no_text.write(cabecera_no_text)
     #Reemplazar por nombre archivo
@@ -44,10 +44,11 @@ def get_fields_tw():
                     content = normalization(texto)
 
                     #Time information
-                    esdia = isDay(tweet['timestamp_ms'])
-                    entresemana = isWeekDay(tweet['timestamp_ms'])
-                    dia = day(tweet['timestamp_ms'])
-                    hora = hour(tweet['timestamp_ms'])
+                    timestamp_ms = float(tweet['timestamp_ms'])
+                    esdia = isDay(timestamp_ms)
+                    entresemana = isWeekDay(timestamp_ms)
+                    dia = str(day(timestamp_ms))
+                    hora = str(hour(timestamp_ms))
 
                     #No devuelve tweet si está vacío tras normalizar y eliminar stopwords
                     if (content != "" ):
@@ -134,11 +135,11 @@ def isWeekDay(tiempo):
 
 def day(tiempo):
     fecha = datetime.datetime.fromtimestamp(tiempo / 1000.0)
-    return  fecha.weekday()
+    return fecha.weekday()
 
 def hour(tiempo):
     fecha = datetime.datetime.fromtimestamp(tiempo / 1000.0)
-    return fecha.hour()
+    return fecha.hour
 
 def deleteConsecutives(word):
     if re.search(r'(.)\1\1', word):
