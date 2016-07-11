@@ -86,7 +86,7 @@ def normalization(text):
         word = deleteConsecutives(word)
         #Won't pass if word lenght is lower than 2
         if (len(re.findall('[a-zA-Z]', word))>2):
-            if (word != 'quito' or word != 'ecuador'):
+            if (word != 'quito' and word != 'ecuador' and word != 'pichincha'):
                 alt1 = word
                 alt2 = word
                 flag = False
