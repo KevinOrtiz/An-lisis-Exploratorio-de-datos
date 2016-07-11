@@ -34,7 +34,25 @@ def get_graphics_hotels(name_file):
 	df_extranjero.plot(kind='scatter', x='HELPFUL', y='RATING',color='DarkGreen', label='Extranjero');
 
 	#Mostrar todos los diagramas
-	plt.show()
+	#plt.show()
+
+	#Numero de Usuario 
+	count_user_hotels = hotels_sort_location.USER.nunique()
+	print "Numero-Usuario CosasQueHacer-TripAvisor",count_user_hotels 
+
+	#Dataframe agrupado por Hoteles y ccuenta cuantos usuarios locales y extranjero tuvo
+	#Cuento por usuarios locales y extranjeros
+	local = lambda x: x[ hotels_sort_location['NATIONALITY'] == 'E'].count()
+	extranjero = lambda y: y[hotels_sort_location['NATIONALITY'] == 'L'].count()
+	#Funcion para agregar el numero de usuarios locales y extranjeros
+	funcion_nationality = [('local', local), ('extranjero', extranjero)]
+	group_hotels_nationality = hotels_sort_location[["NAME","NATIONALITY"]].groupby('NAME').agg(funcion_nationality)
+
+	data = group_hotels_nationality.add_suffix('_Count').reset_index()
+	#print data
+	print data.ix[data[('NATIONALITY_Count', 'local_Count')].idxmax()]
+	#print list(data)
+
 
 if __name__ == '__main__':
-	get_graphics_hotels("../data/TripAdvisor/pdata_actividades_categorizado_co.csv")
+	get_graphics_hotels("../data/TripAdvisor/pdata_actividades_categorizado_com.csv")
