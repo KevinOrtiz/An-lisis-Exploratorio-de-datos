@@ -2,14 +2,15 @@ import pandas as pd
 import csv
 
 def rankingreviews():
-	datos =pd.read_csv('restaurantes_col.csv',index_col=0)
-	datos['top'] = datos['Nvotos_utiles'].map(lambda x: 1 if (x>=500)
-													else 2 if (x>=300 and x<=400)
-													else 3 if (x>200 and x<300)
-													else 4 if (x>100 and x<200)
+	datos =pd.read_csv('restaurantes_extranjeros.csv',index_col=0)
+	datos['Nvotos_restaurantes'] = datos['Nvotos_restaurantes'].astype(int) 
+	datos['mayor_influencia'] = datos['Nvotos_restaurantes'].map(lambda x: 1 if (x>100 and x<=200)
+													else 2 if (x>=80 and x<100)
+													else 3 if (x>50 and x<80)
+													else 4 if (x>10 and x<50)
 													else 5 )
-	datos['local/extranjero'] = datos['Pais'].apply(categorizarextranjero)
-	datos.to_csv('restaurantes_col_top.csv')
+	datos['local/extranjero'] = datos['Pais/Estado'].apply(categorizarextranjero)
+	datos.to_csv('restaurantes_es_influencia.csv')
 	
 
 
