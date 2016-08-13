@@ -15,8 +15,8 @@ import datetime
 def get_fields_tw():
     tw_file = open('../data/Twitter/tweets_depurated.csv', 'w')
     tw_file_no_text = open('../data/Twitter/tweets_depurated_noText.csv', 'w')
-    cabecera = 'id_str,longitude,latitude,words,lang,timestamp_ms,n_retw,hashtags,dia,hora,isDay,isWeekDay\n'
-    cabecera_no_text = 'id_str,longitude,latitude,lang,timestamp_ms,n_retw,dia,hora,isDay,isWeekDay\n'
+    cabecera = 'id_user_str,longitude,latitude,words,lang,timestamp_ms,n_retw,hashtags,dia,hora,isDay,isWeekDay\n'
+    cabecera_no_text = 'id_user_str,longitude,latitude,lang,timestamp_ms,n_retw,dia,hora,isDay,isWeekDay\n'
     tw_file.write(cabecera)
     tw_file_no_text.write(cabecera_no_text)
     #Reemplazar por nombre archivo
@@ -56,13 +56,13 @@ def get_fields_tw():
                             hashtags = hashtags + '&' + h['text'].encode('ascii','ignore')
                         if not hashtags:
                             hashtags = '-'
-                        line = tweet['id_str'] + ',' + longitude + ',' \
+                        line = tweet['user']['id_str'] + ',' + longitude + ',' \
                                + latitude + ',' + content + ',' + tweet['lang']+','+ tweet['timestamp_ms']\
                                + ',' + str(tweet['retweet_count']) + ',' + hashtags + ','+dia+','\
                                +hora+','+esdia+','+entresemana+','+'\n'
                         tw_file.write(line)
 
-                    line_noText = tweet['id_str'] + ',' + longitude + ',' \
+                    line_noText = tweet['user']['id_str'] + ',' + longitude + ',' \
                                + latitude + ',' + tweet['lang']+','+ tweet['timestamp_ms']\
                                + ',' + str(tweet['retweet_count'])+','+dia+','+hora+','+esdia+','+entresemana+','+ '\n'
                     tw_file_no_text.write(line_noText)
@@ -113,7 +113,6 @@ def normalization(text):
 def remove_accents(input_str):
     nkfd_form = unicodedata.normalize('NFKD', unicode(input_str))
     return u"".join([c for c in nkfd_form if not unicodedata.combining(c)])
-
 
 def isDay(tiempo):
     fecha = datetime.datetime.fromtimestamp(tiempo/1000.0)
