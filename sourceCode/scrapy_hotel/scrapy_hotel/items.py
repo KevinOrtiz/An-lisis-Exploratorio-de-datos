@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 __author__ = 'josanvel'
 
 # Define here the models for your scraped items
@@ -16,34 +15,32 @@ import string
 class TripAdvisorReviewItem(Item):
 	# define the fields for your item here like:
 	# name = scrapy.Field()
-	date = Field()
-	title = Field(
-		input_processor = MapCompose(unicode.strip, 
-									lambda x: unidecode.unidecode(x),
-									lambda y: string.replace(y, '\n', ' '),
-									lambda z: z.strip),
-		output_processor = Join(),
-	)
-	description = Field(
-		input_processor = MapCompose(unicode.strip, 
-									lambda x: unidecode.unidecode(x),
-									lambda y: string.replace(y, '\n', ' '),
-									lambda z: z.strip),
-		output_processor = Join(),
-	)
+	title_review = Field()
+	rating_review = Field()
+	date_review = Field()
+	username_review = Field()
+	location_review = Field()
+	opinions_user_review = Field()
+	helpful_review = Field()
+	description_review = Field()
+
 
 class TripAdvisorItem(Item):
 	# define the fields for your item here like:
-	# name = scrapy.Field()
-	url = Field()
-	name = Field(
-		input_processor = MapCompose(unicode.strip, lambda x: unidecode.unidecode(x)),
-		output_processor = Join(),
-	)
-	rating = Field(
-		input_processor = MapCompose(unicode.strip, lambda x: x.replace(' de 5 estrellas','')),
-		output_processor = Join(),
-	)
-	location = Field()
-	reviews = Field()
-	tag = Field()
+
+	name_hotel = Field()
+	opinions_hotel =Field()
+	rating_hotel = Field()
+	location_hotel = Field()
+	reviews_hotel = Field()
+
+
+class TripAdvisorItemCosasHacer(Item):
+	# define the fields for your item here like:
+
+	name_actividad = Field()
+	opinions_actividad =Field()
+	rating_actividad = Field()
+	location_actividad = Field()
+	reviews_actividad = Field()
+	tags_categorias_actividades = Field()

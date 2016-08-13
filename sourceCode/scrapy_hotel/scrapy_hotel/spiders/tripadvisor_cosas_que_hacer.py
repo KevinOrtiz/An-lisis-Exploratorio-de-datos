@@ -21,8 +21,8 @@ MAX_REVIEWS_PAGES = 500
 
 class tripAdvisorScrapper(BaseSpider):
 	name = "tripadvisor_hotel"
-	allowed_domains = ["tripadvisor.co"]
-	base_uri = "http://www.tripadvisor.co"
+	allowed_domains = ["tripadvisor.com"]
+	base_uri = "http://www.tripadvisor.com"
 	start_urls = [
 		base_uri + "/Attractions-g294308-Activities-Quito_Pichincha_Province.html"
 	]
@@ -38,20 +38,17 @@ class tripAdvisorScrapper(BaseSpider):
 
 		# Iteracion de cada actividad en la pagina semilla
 		for snode_cosas_que_hacer in snode_cosas_que_hacers:
-			#========Instanciar el item Actividades
-			tripadvisor_item = TripAdvisorItem()
-			#========Obtener la URL del Actividades
-			url_name_tag = clean_parsed_string(get_parsed_string(snode_cosas_que_hacer, './a/@href'))
-
-			#========Obtener el nombre del Actividades
-			tripadvisor_item['name'] = clean_parsed_string(get_parsed_string(snode_cosas_que_hacer, './/div[contains(@class, "property_title")]/a/text()'))
-			
-			if url_name_tag:
+			#========Obtener la URL de la categoria de las Actividades
+			url_name_categoria = clean_parsed_string(get_parsed_string(snode_cosas_que_hacer, './a/@href'))
+				
+			if url_name_categoria:
 				#========Concatenar la URL del Actividades
-				url_name_tag = self.base_uri + url_name_tag
-				yield Request(url=url_name_tag, cookies={'store_language':'en'}, meta={'counter_page_actividades' : counter_page_actividades}, callback=self.parse_page_tags)
+				#nnnn = clean_parsed_string(get_parsed_string(snode_cosas_que_hacer, './a/span[@class="filter_name"]/text()'))
+				#print nnnn
+				url_name_categoria = self.base_uri + url_name_categoria
+				yield Request(url=url_name_categoria, meta={'counter_page_actividades' : counter_page_actividades}, callback=self.parse_page_tags)
 			
-	
+
 	def parse_page_tags(self, response):
 		sel = Selector(response)
 		#Selector de todos las Actividades
@@ -65,24 +62,28 @@ class tripAdvisorScrapper(BaseSpider):
 			# Iteracion de cada actividad en la pagina semilla
 			for snode_cosas_que_hacer in snode_cosas_que_hacers:
 				#========Instanciar el item Actividades
-				tripadvisor_item = TripAdvisorItem()
-				#========Obtener la URL del Actividades
-				url_name = clean_parsed_string(get_parsed_string(snode_cosas_que_hacer, './/div[contains(@class, "property_title")]/a/@href'))
+				tripadvisor_item = TripAdvisorItemCosasHacer()
+				#========Obtener la URL de la Actividades
+				url_name_actividad = clean_parsed_string(get_parsed_string(snode_cosas_que_hacer, './div[contains(@class, "property_title")]/a/@href'))
 				#========Obtener el nombre del Actividades
-				tripadvisor_item['name'] = clean_parsed_string(get_parsed_string(snode_cosas_que_hacer, './/div[contains(@class, "property_title")]/a/text()'))
+				tripadvisor_item['name_actividad'] = clean_parsed_string(get_parsed_string(snode_cosas_que_hacer, './div[contains(@class, "property_title")]/a/text()'))
+				#========Obtener el numero de opiniones de la Actividad
+				tripadvisor_item['opinions_actividad'] = clean_parsed_string(get_parsed_int(snode_cosas_que_hacer, './div[@class="wrap"]/div[@class="rs rating"]/span[contains(@class,"more")]/a/text()'))
+				#========Obtener el rating de la Actividad
+				tripadvisor_item['rating_actividad'] = clean_parsed_string(get_parsed_int(snode_cosas_que_hacer, './div[@class="wrap"]/div[@class="rs rating"]/span[contains(@class,"rate")]/img/@alt'))
 				
-				if url_name:
-					#========Concatenar la URL del Actividades
-					url_name = self.base_uri + url_name
-					yield Request(url=url_name, cookies={'store_language':'en'}, meta={'tripadvisor_item': tripadvisor_item}, callback=self.parse_search_page)
+				if url_name_actividad:
+				  #========Concatenar la URL del Actividades
+				  url_name_actividad = self.base_uri + url_name_actividad
+				  yield Request(url=url_name_actividad, meta={'tripadvisor_item': tripadvisor_item}, callback=self.parse_search_page)
 				
 			#Obtener la URL de la pagina siguiente (PAGINACION)
 			next_page_actividades = clean_parsed_string(get_parsed_string(sel, '//a[starts-with(@class, "nav next rndBtn ui_button primary taLnk")]/@href'))
 
 			if next_page_actividades and len(next_page_actividades) > 0:
-				#========Concatenar la URL de la paginacion de Actividades
-				url_actividades = self.base_uri + next_page_actividades
-				yield Request(url=url_actividades, cookies={'store_language':'en'}, meta={'counter_page_actividades' : counter_page_actividades}, callback=self.parse_page_tags)
+			  #========Concatenar la URL de la paginacion de Actividades
+			  url_actividades = self.base_uri + next_page_actividades
+			  yield Request(url=url_actividades, meta={'counter_page_actividades' : counter_page_actividades}, callback=self.parse_page_tags)
 
 
 	# Buscar los raiting, ubucacion y los links de los reviews.
@@ -91,21 +92,20 @@ class tripAdvisorScrapper(BaseSpider):
 		tripadvisor_item = response.meta['tripadvisor_item']
 		sel = Selector(response)
 		#========Lista el review del Actividades
-		tripadvisor_item['reviews'] = []
-		#========Obtener el raiting del Actividades
-		tripadvisor_item['rating'] = clean_parsed_string(get_parsed_rating(sel, '//*[@id="HEADING_GROUP"]/div/div[2]/div[1]/div/span/img/@alt'))
+		tripadvisor_item['reviews_actividad'] = []
+		#========Obtener las coordenadas geograficas de la Actividad
 		lng = clean_parsed_string(get_parsed_string(sel, '//*[@id="NEARBY_TAB"]/div/div[1]/div[3]/@data-lng'))
 		lat = clean_parsed_string(get_parsed_string(sel, '//*[@id="NEARBY_TAB"]/div/div[1]/div[3]/@data-lat'))
 		if lng is None and lat is None:
-			pos = [lng, lat]
+			coordinates = [None, None]
 		else:  
-			pos = [str(lng), str(lat)]		#Almacena la Longitud y la Latitud del Actividades y lo guarda en una lista
+			coordinates = [str(lng), str(lat)]      #Almacena la Longitud y la Latitud del Actividades y lo guarda en una lista
 		#========Obtener la ubicacion del Actividades
-		tripadvisor_item['location'] = pos
+		tripadvisor_item['location_actividad'] = coordinates
 
 		#========Obtener el tag del Actividades
 		list_tags = []
-		#========Obtengo el selector de tags
+		#========Obtengo el selector de tags//
 		tags = sel.xpath('//*[@id="HEADING_GROUP"]/div/div[3]/div/div[@class="detail"]/a')
 		for tag in tags:
 			#===============Obtengo string del tag
@@ -114,13 +114,13 @@ class tripAdvisorScrapper(BaseSpider):
 			list_tags.append(elem)
 
 		#========Obtener los tags de Actividades
-		tripadvisor_item['tag'] = list_tags
+		tripadvisor_item['tags_categorias_actividades'] = list_tags
 		
-		expanded_review_url = clean_parsed_string(get_parsed_string(sel, '//div[contains(@class, "basic_review")]//a/@href'))
-		if expanded_review_url:
+		url_name_review = clean_parsed_string(get_parsed_string(sel, '//*[@id="REVIEWS"]/div[contains(@class, "reviewSelector")]//div[@class="quote"]/a/@href'))
+		if url_name_review:
 			#========Concatenar la URL del titulo del review
-			url_review = self.base_uri + expanded_review_url
-			yield Request(url=url_review, cookies={'store_language':'en'}, meta={'tripadvisor_item': tripadvisor_item, 'counter_page_review' : 0}, callback=self.parse_fetch_review)
+			url_review = self.base_uri + url_name_review
+			yield Request(url=url_review,  meta={'tripadvisor_item': tripadvisor_item, 'counter_page_review' : 0}, callback=self.parse_fetch_review)
 		#Aunque no tenga Review aun asi se guarda registro de la Actividad
 		else: 
 			yield tripadvisor_item
@@ -142,25 +142,33 @@ class tripAdvisorScrapper(BaseSpider):
 
 			# Reviews for item.
 			for snode_review in snode_reviews:
-				#========Instanciar el item del review del Actividades
+				#========Instanciar el item del review de la Actividad
 				tripadvisor_review_item = TripAdvisorReviewItem()
-				#========Obtener el titulo del review del Actividades
-				tripadvisor_review_item['title_review'] = clean_parsed_string(get_parsed_string(snode_review, './/div[@class="quote"]/text()'))
-
+				#========Obtener el titulo del review de la Actividad
+				tripadvisor_review_item['title_review'] 		= clean_parsed_string(get_parsed_string(snode_review, './/div[@class="innerBubble"]/div[contains(@class,"quote")]//div[@class="quote"]/text()'))
 				if tripadvisor_review_item['title_review'] is None:
-					tripadvisor_review_item['title_review'] = clean_parsed_string(get_parsed_string(snode_review, './/div[@class="quote"]/a/span/text()'))
+					tripadvisor_review_item['title_review'] 	= clean_parsed_string(get_parsed_string(snode_review, '//div[@class="innerBubble"]/div[contains(@class,"quote")]//div[@class="quote"]/a/span/text()'))
 			
-				tripadvisor_review_item['description_review'] = get_parsed_string_multiple(snode_review, './/div[@class="entry"]/p/text()')
-				tripadvisor_review_item['user_review'] = clean_parsed_string(get_parsed_string(snode_review, './/div[@class="username mo"]/span/text()'))
-				tripadvisor_review_item['opinions_review'] = clean_parsed_string(get_parsed_opinions(snode_review, './/div[contains(@class,"contributionReviewBadge")]/span/text()'))
-				tripadvisor_review_item['votes_helpful'] = clean_parsed_string(get_parsed_helpful(snode_review, './/div[contains(@class,"helpfulVotesBadge")]/span/text()'))
-				tripadvisor_review_item['location_review'] = clean_parsed_string(get_parsed_string(snode_review, './/div[@class="location"]/text()'))
+				#========Obtener la descripcion de un review de la Actividad
+				tripadvisor_review_item['description_review'] 	= get_parsed_string_multiple(snode_review, './/div[@class="entry"]/p/text()')
+				#========Obtener el rating de un review de la Actividad
+				tripadvisor_review_item['rating_review'] 		= clean_parsed_string(get_parsed_int(snode_review, './/div[contains(@class,"rating reviewItemInline")]/span/img/@alt'))
+				#========Obtener el dia de publicacion de un review de la Actividad
+				tripadvisor_review_item['date_review'] 			= clean_parsed_string(get_parsed_date(snode_review, './/span[contains(@class,"ratingDate")]/@title'))
+				if tripadvisor_review_item['date_review'] is None:
+					tripadvisor_review_item['date_review'] 		= clean_parsed_string(get_parsed_date(snode_review, './/span[contains(@class,"ratingDate")]/text()'))
 
-				##========Convierte de String a Timestamp
-				tripadvisor_review_item['date_review'] = clean_parsed_string(get_parsed_date(snode_review, './/div[@class="rating"]/span/span[@class="ratingDate"]/text()'))
-				
-				#========Guardar el titulo y la descripcion del review del Actividades
-				tripadvisor_item['reviews'].append(tripadvisor_review_item)
+				#========Obtener la descripcion de un review de la Actividad
+				tripadvisor_review_item['username_review'] 		= clean_parsed_string(get_parsed_string(snode_review, './/div[@class="username mo"]/span/text()'))
+				#========Obtener la ubicacion del usuario  del review -- Actividad
+				tripadvisor_review_item['location_review'] 		= clean_parsed_string(get_parsed_string(snode_review, './/div[contains(@class,"member_info")]//div[@class="location"]/text()'))
+				#========Obtener el numero de opinios del usuario  del review -- Actividad
+				tripadvisor_review_item['opinions_user_review'] = clean_parsed_string(get_parsed_int(snode_review, './/div[contains(@class,"memberBadging")]//div[contains(@class,"contributionReviewBadge")]/span/text()'))
+				#========Obtener los votos utilies de usuario  del review -- Actividad
+				tripadvisor_review_item['helpful_review'] 		= clean_parsed_string(get_parsed_int(snode_review, './/div[contains(@class,"memberBadging")]/div[contains(@class,"helpfulVotesBadge")]/span/text()'))
+
+				#========Guardar el titulo y la descripcion del review de la Actividad
+				tripadvisor_item['reviews_actividad'].append(tripadvisor_review_item)
 
 			#Obtener la URL de la pagina siguiente de los review (PAGINACION)
 			next_page_url = clean_parsed_string(get_parsed_string(sel, '//a[starts-with(@class, "nav next rndBtn ")]/@href'))
