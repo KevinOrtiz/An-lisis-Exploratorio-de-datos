@@ -5,3 +5,4 @@ test.py
 *.csv
 *.html
 *.DS_Store
+*.text
