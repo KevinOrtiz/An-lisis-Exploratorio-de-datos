@@ -2,7 +2,7 @@ import json as js
 from nltk.tokenize import TweetTokenizer
 from nltk.corpus import stopwords
 import io
-
+import nltk
 
 """
 Funcion:        token_hotels
@@ -30,7 +30,7 @@ def token_hotels():
 							text = ' '.join([word for word in text.split() if word not in stopwords.words("spanish")])
 							#text = ' '.join([word for word in text.split() if word not in stopwords.words("english")])
 							reviews_tokenizado = objectToken.tokenize(text)
-							lista_comentarios.append(reviews_tokenizado)
+							lista_comentarios.append(nltk.pos_tag(reviews_tokenizado))
 					break
 				lista_Reviews['name_hotel'] = element['name_hotel']
 				lista_Reviews['location_hotel'] = [element['location_hotel'][0], element['location_hotel'][1]]
@@ -66,7 +66,7 @@ def token_activities():
 							text = ' '.join([word for word in text.split() if word not in stopwords.words("spanish")])
 							#text = ' '.join([word for word in text.split() if word not in stopwords.words("english")])
 							reviews_tokenizado = objectToken.tokenize(text)
-							lista_comentarios.append(reviews_tokenizado)
+							lista_comentarios.append(nltk.pos_tag(reviews_tokenizado))
 					break
 				lista_Reviews['name_actividad'] = element['name_actividad']
 				lista_Reviews['location_actividad'] = [element['location_actividad'][0], element['location_actividad'][1]]
