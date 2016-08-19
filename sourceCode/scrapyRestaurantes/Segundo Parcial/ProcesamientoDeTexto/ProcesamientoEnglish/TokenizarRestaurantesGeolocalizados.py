@@ -9,7 +9,8 @@ with open("salidaRestaurantes_versionCOM.json") as dataFile:
 
 lista_Reviews = {}
 contador = 0
-with io.open('ArchivoTokenizadoRestaurantesGeolocalizadosEnglish.text','w',encoding='utf-8') as f:
+
+with io.open('ArchivoTokenizadoRestaurantesGeolocalizadosEnglish.json','w',encoding='utf-8') as f:
     for i in datas:
         lista_comentarios = []
         if i['posicion'][0] is not None and i['posicion'][1] is not None:
@@ -18,7 +19,7 @@ with io.open('ArchivoTokenizadoRestaurantesGeolocalizadosEnglish.text','w',encod
                 if ('comentarios' in y):
                     for text in y['comentarios']:
                         objectToken = TweetTokenizer(strip_handles=True, reduce_len=True)
-                        text = ' '.join([word for word in text.split() if word not in stopwords.words("spanish")])
+                        text = ' '.join([word for word in text.split() if word not in stopwords.words("english")])
                         reviews_tokenizado = objectToken.tokenize(text)
                         lista_comentarios.append(nltk.pos_tag(reviews_tokenizado))
                 break
@@ -27,7 +28,7 @@ with io.open('ArchivoTokenizadoRestaurantesGeolocalizadosEnglish.text','w',encod
             lista_Reviews['reviews'] = lista_comentarios
             lista_Reviews['indice'] = contador
             del lista_comentarios
-            f.write(unicode(js.dumps(lista_Reviews, ensure_ascii=False)))
+            f.write(js.dumps(lista_Reviews,ensure_ascii=False,indent=4,sort_keys=True,separators=(',',':')))
 f.close()
 
 
