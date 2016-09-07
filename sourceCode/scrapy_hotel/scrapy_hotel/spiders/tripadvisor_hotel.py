@@ -17,7 +17,7 @@ import scrapy
 # Constants.
 # Max reviews pages to crawl.
 # Reviews collected are around: 5 * MAX_REVIEWS_PAGES
-MAX_REVIEWS_PAGES = 500
+MAX_REVIEWS_PAGES = 1000
 
 class tripAdvisorScrapper(BaseSpider):
 	name = "tripadvisor_hotel"
@@ -81,23 +81,23 @@ class tripAdvisorScrapper(BaseSpider):
 		lng = clean_parsed_string(get_parsed_string(sel, '//*[@id="NEARBY_TAB"]/div/div[1]/div[3]/@data-lng'))
 		lat = clean_parsed_string(get_parsed_string(sel, '//*[@id="NEARBY_TAB"]/div/div[1]/div[3]/@data-lat'))
 
-		#========Pregunta si las coordenadas son NULAS
-		if lng is None and lat is None:
-			coordinates = [None, None]
-		else:  
-			coordinates = [str(lng), str(lat)]		#Almacena la Longitud y la Latitud del Hoteles y lo guarda en una lista
-		#========Almacena la ubicacion del Hoteles
-		tripadvisor_item['location_hotel'] = coordinates
 
-		#========Pregunta si La URL no es None
-		url_name_review = clean_parsed_string(get_parsed_string(sel, '//div[contains(@class, "basic_review")]//div[contains(@class, "wrap")]/div[@class="quote"]/a/@href'))
-		if url_name_review:
-			#========Concatenar la URL del titulo del review
-			url_review = self.base_uri + url_name_review
-			yield Request(url=url_review, meta={'tripadvisor_item': tripadvisor_item, 'counter_page_review' : 0}, callback=self.parse_fetch_review)
-		#Aunque no tenga Review aun asi guarda registro del Hotel
-		else: 
-			yield tripadvisor_item
+		coordinates = [str(lng), str(lat)]		#Almacena la Longitud y la Latitud del Hoteles y lo guarda en una lista
+
+		#========Pregunta si las coordenadas son NULAS
+		if lng  and lat:
+			#========Almacena la ubicacion del Hoteles
+			tripadvisor_item['location_hotel'] = coordinates
+
+			#========Pregunta si La URL no es None
+			url_name_review = clean_parsed_string(get_parsed_string(sel, './/div[@class="quote"]/a/@href'))
+			if url_name_review:
+				#========Concatenar la URL del titulo del review
+				url_review = self.base_uri + url_name_review
+				yield Request(url=url_review, meta={'tripadvisor_item': tripadvisor_item, 'counter_page_review' : 0}, callback=self.parse_fetch_review)
+			#Aunque no tenga Review aun asi guarda registro del Hotel
+			else: 
+				yield tripadvisor_item
 
 
 	# Si la pagina encuentra un review, hace su analisis exahustivo.
@@ -116,34 +116,48 @@ class tripAdvisorScrapper(BaseSpider):
 			snode_reviews = sel.xpath('//div[@id="REVIEWS"]/div[contains(@class, "reviewSelector")]')
 
 			# Reviews for item.
+			contador_mensajes = 0
 			for snode_review in snode_reviews:
-				#========Instanciar el item del review del Hoteles
-				tripadvisor_review_item = TripAdvisorReviewItem()
-				#========Obtener el titulo del review del Hoteles
-				tripadvisor_review_item['title_review'] 		= clean_parsed_string(get_parsed_string(snode_review, './/div[contains(@class,"quote")]//div[@class="quote"]/text()'))
-				if tripadvisor_review_item['title_review'] is None:
-					tripadvisor_review_item['title_review'] 	= clean_parsed_string(get_parsed_string(snode_review, './/div[@class="quote"]/a/span/text()'))
-			
-				#========Obtener la descripcion de un review del Hotel
-				tripadvisor_review_item['description_review'] 	= get_parsed_string_multiple(snode_review, './/div[@class="entry"]/p/text()')
-				#========Obtener el rating de un review del Hotel
-				tripadvisor_review_item['rating_review'] 		= clean_parsed_string(get_parsed_int(snode_review, './/div[contains(@class,"rating reviewItemInline")]/span/img/@alt'))
-				#========Obtener el dia de publicacion de un review del Hotel
-				tripadvisor_review_item['date_review'] 			= clean_parsed_string(get_parsed_date(snode_review, './/span[contains(@class,"ratingDate")]/@title'))
-				if tripadvisor_review_item['date_review'] is None:
-					tripadvisor_review_item['date_review'] 		= clean_parsed_string(get_parsed_date(snode_review, './/span[contains(@class,"ratingDate")]/text()'))
+				if snode_review:
+					#========Instanciar el item del review del Hoteles
+					tripadvisor_review_item = TripAdvisorReviewItem()
+					#========Obtener el titulo del review del Hoteles
+					tripadvisor_review_item['title_review'] = clean_parsed_string(get_parsed_string(snode_review, './/div[@class="quote"]/a/span/text()'))
+					if tripadvisor_review_item['title_review'] is None:
+						tripadvisor_review_item['title_review'] = clean_parsed_string(get_parsed_string(snode_review, './/div[@class="quote"]/text()'))
 
-				#========Obtener la descripcion de un review del Hotel
-				tripadvisor_review_item['username_review'] 		= clean_parsed_string(get_parsed_string(snode_review, './/div[@class="username mo"]/span/text()'))
-				#========Obtener la ubicacion del usuario  del review -- Hotel
-				tripadvisor_review_item['location_review'] 		= clean_parsed_string(get_parsed_string(snode_review, './/div[contains(@class,"member_info")]//div[@class="location"]/text()'))
-				#========Obtener el numero de opinios del usuario  del review -- Hotel
-				tripadvisor_review_item['opinions_user_review'] = clean_parsed_string(get_parsed_int(snode_review, './/div[contains(@class,"memberBadging")]//div[contains(@class,"contributionReviewBadge")]/span/text()'))
-				#========Obtener los votos utilies de usuario  del review -- Hotel
-				tripadvisor_review_item['helpful_review'] 		= clean_parsed_string(get_parsed_int(snode_review, './/div[contains(@class,"memberBadging")]/div[contains(@class,"helpfulVotesBadge")]/span/text()'))
+					#========Obtener la descripcion de un review del Hotel
+					tripadvisor_review_item['description_review'] 	= get_parsed_string_multiple(snode_review, './/div[@class="entry"]/p/text()')
 
-				#========Guardar el titulo y la descripcion del review del Hoteles
-				tripadvisor_item['reviews_hotel'].append(tripadvisor_review_item)
+					if tripadvisor_review_item['title_review'] and  tripadvisor_review_item['description_review']:
+						contador_mensajes = contador_mensajes + 1
+						
+						#========Obtener el rating de un review del Hotel
+						tripadvisor_review_item['rating_review'] 		= clean_parsed_string(get_parsed_int(snode_review, './/div[contains(@class,"rating reviewItemInline")]/span/img/@alt'))
+						
+						#========Obtener el dia de publicacion de un review del Hotel
+						tripadvisor_review_item['date_review'] 			= clean_parsed_string(get_parsed_date(snode_review, './/span[contains(@class,"ratingDate")]/@title'))
+						if not tripadvisor_review_item['date_review']:
+							tripadvisor_review_item['date_review'] 		= clean_parsed_string(get_parsed_date(snode_review, './/span[contains(@class,"ratingDate")]/text()'))
+
+						#========Obtener la descripcion de un review del Hotel
+						tripadvisor_review_item['username_review'] 		= clean_parsed_string(get_parsed_string(snode_review, './/div[@class="username mo"]/span/text()'))
+						#========Obtener la ubicacion del usuario  del review -- Hotel
+						tripadvisor_review_item['location_review'] 		= clean_parsed_string(get_parsed_string(snode_review, './/div[contains(@class,"member_info")]//div[@class="location"]/text()'))
+						
+						#========Obtener el numero de opinios del usuario  del review -- Hotel
+						tripadvisor_review_item['opinions_user_review'] = clean_parsed_string(get_parsed_int(snode_review, './/div[contains(@class,"memberBadging")]//div[contains(@class,"contributionReviewBadge")]/span/text()'))
+						if tripadvisor_review_item['opinions_user_review'] is None:
+							tripadvisor_review_item['opinions_user_review'] = 0
+
+						#========Obtener los votos utilies de usuario  del review -- Hotel
+						tripadvisor_review_item['helpful_review'] 		= clean_parsed_string(get_parsed_int(snode_review, './/div[contains(@class,"memberBadging")]/div[contains(@class,"helpfulVotesBadge")]/span/text()'))
+						if tripadvisor_review_item['helpful_review'] is None:
+							tripadvisor_review_item['helpful_review'] = 0
+
+						#========Guardar el titulo y la descripcion del review del Hoteles
+						tripadvisor_item['reviews_hotel'].append(tripadvisor_review_item)
+			tripadvisor_item['count_review']  = contador_mensajes
 
 			#Obtener la URL de la pagina siguiente de los review (PAGINACION)
 			next_page_url = clean_parsed_string(get_parsed_string(sel, '//a[starts-with(@class, "nav next rndBtn ")]/@href'))

@@ -12,8 +12,8 @@ def is_ascii(s):
 def clean_parsed_string(string):
 	if len(string) > 0:
 		ascii_string = string
-		# if is_ascii(ascii_string) == False:
-		# 	ascii_string = unicodedata.normalize('NFKD', ascii_string).encode('ascii', 'ignore')
+		if is_ascii(ascii_string) == False:
+		 	ascii_string = unicodedata.normalize('NFKD', ascii_string).encode('ascii', 'ignore')
 		return str(ascii_string)
 	else:
 		return None
@@ -25,11 +25,15 @@ def get_parsed_int(selector, xpath):
 	if len(extracted_list) > 0:
 		raw_string = extracted_list[0].strip()
 		if raw_string is not None:
-
 			raw_string = raw_string.strip()
 			raw_string = unidecode.unidecode(raw_string)
 			raw_string = string.replace(raw_string, '\n', '')
 			raw_string = string.replace(raw_string, '\"', '')
+			raw_string = string.replace(raw_string, '.', '')
+			raw_string = string.replace(raw_string, ',', '')
+			raw_string = string.replace(raw_string, ';', '')
+			raw_string = string.replace(raw_string, ':', '')
+			raw_string = string.replace(raw_string, '-', '')
 			raw_string = raw_string.split(' ')
 			raw_string = raw_string[0]
 			return_string = htmlparser.unescape(raw_string)
@@ -42,7 +46,6 @@ def get_parsed_string(selector, xpath):
 	if len(extracted_list) > 0:
 		raw_string = extracted_list[0].strip()
 		if raw_string is not None:
-
 			raw_string = raw_string.strip()
 			raw_string = unidecode.unidecode(raw_string)
 			raw_string = string.replace(raw_string, '\n', '')

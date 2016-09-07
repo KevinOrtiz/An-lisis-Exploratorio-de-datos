@@ -37,6 +37,7 @@ def set_bbox_top_cosas_hacer():
         maxlat = NE_loc.deg_lat
         bboxes[key] = [minlong, minlat, maxlong, maxlat]
     print bboxes
+
     """
     tweets_df = pd.read_csv("../data/Twitter/data_set_actividades_categorizado.csv", index_col=False)
     tw_aux = tweets_df[['longitude','latitude']]
@@ -58,6 +59,28 @@ def set_bbox_top_cosas_hacer():
     print top_poi_cosas_hacer
     poi_cosas_hacer_df.to_csv('../data/Twitter/poi_cosas_hacer_nTw.csv', index=False)
     tweets_df.to_csv('../data/Twitter/tweets_depurated_bboxes.csv', index=False)"""
+
+    # tweets_df = pd.read_csv("../data/Twitter/tweets_depurated.csv", index_col=False)
+    # tw_aux = tweets_df[['longitude','latitude']]
+    # tweets_df['bbox_cosas_hacer'] = tw_aux.apply(lambda x: get_index_bbox(x, bboxes), axis=1)
+    # poi_cosas_hacer_df = pd.DataFrame(columns=('poi_name', 'n_tw'))
+    # index_poi = 0
+    # for key in bboxes.iterkeys():
+    #     tw_cosas_hacer_lugar = tweets_df[tweets_df['bbox_cosas_hacer']==key]
+    #     size = len(tw_cosas_hacer_lugar.index)
+    #     poi_cosas_hacer_df.n_tw = poi_cosas_hacer_df.n_tw.astype(int)
+    #     poi_cosas_hacer_df.loc[index_poi] = [key, size]
+    #     index_poi += 1
+    #     if not tw_cosas_hacer_lugar.empty:
+    #         filename = '../data/Twitter/tws_alrededor_poi/tw_cosas_hacer_' + key + '.csv'
+    #         tw_cosas_hacer_lugar.to_csv(filename, index=False)
+    # poi_cosas_hacer_df = poi_cosas_hacer_df.sort_values(by='n_tw', ascending=False)
+    # print '*** Top5 de los POIs considerando el numero de tweets***'
+    # top_poi_cosas_hacer = poi_cosas_hacer_df.head(5)
+    # print top_poi_cosas_hacer
+    # poi_cosas_hacer_df.to_csv('../data/Twitter/poi_cosas_hacer_nTw.csv', index=False)
+    # tweets_df.to_csv('../data/Twitter/tweets_depurated_bboxes.csv', index=False)
+
 
 def get_pois_location_trip_advisor(category_csv_file):
     sitios = {}
