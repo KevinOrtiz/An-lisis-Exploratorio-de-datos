@@ -23,7 +23,7 @@ def set_bbox_top_cosas_hacer():
     # a Iglesia de la compania de jesus
     # b Teleferico de quito
     # sitios = {'a': [-78.51385, -0.221065], 'b': [-78.51503, -0.223030]}
-    sitios = get_pois_location_trip_advisor('../data/TripAdvisor/nuevo_data_actividades.csv')
+    sitios = get_pois_location_trip_advisor('../data/TripAdvisor/data_set_actividades_categorizado.csv')
     bboxes = {}
     for key, value in sitios.iteritems():
         longitude = value[0]
@@ -36,7 +36,9 @@ def set_bbox_top_cosas_hacer():
         maxlong = NE_loc.deg_lon
         maxlat = NE_loc.deg_lat
         bboxes[key] = [minlong, minlat, maxlong, maxlat]
-    tweets_df = pd.read_csv("../data/Twitter/tweets_depurated.csv", index_col=False)
+    print bboxes
+    """
+    tweets_df = pd.read_csv("../data/Twitter/data_set_actividades_categorizado.csv", index_col=False)
     tw_aux = tweets_df[['longitude','latitude']]
     tweets_df['bbox_cosas_hacer'] = tw_aux.apply(lambda x: get_index_bbox(x, bboxes), axis=1)
     poi_cosas_hacer_df = pd.DataFrame(columns=('poi_name', 'n_tw'))
@@ -55,12 +57,12 @@ def set_bbox_top_cosas_hacer():
     top_poi_cosas_hacer = poi_cosas_hacer_df.head(5)
     print top_poi_cosas_hacer
     poi_cosas_hacer_df.to_csv('../data/Twitter/poi_cosas_hacer_nTw.csv', index=False)
-    tweets_df.to_csv('../data/Twitter/tweets_depurated_bboxes.csv', index=False)
+    tweets_df.to_csv('../data/Twitter/tweets_depurated_bboxes.csv', index=False)"""
 
 def get_pois_location_trip_advisor(category_csv_file):
     sitios = {}
     dataframe = pd.read_csv(category_csv_file)
-    dataframe = dataframe[['name', 'longitude', 'latitude']]
+    dataframe = dataframe[['Name_Actividades', 'Longitude', 'Latitude']]
     for itr in dataframe.itertuples():
         name = itr[1]
         name = name.replace(' ', '')

@@ -24,6 +24,5 @@ def removestop(x):
     return res
 
 result['dep'] = result['words'].apply(removestop)
-result.
 
 result.to_csv(path_result, sep=',', encoding='utf-8')
