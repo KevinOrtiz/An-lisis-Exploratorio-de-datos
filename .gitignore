@@ -8,6 +8,7 @@ test.py
 *.text
 .Rproj.user
 *.png
+*.xcf
 
 DatosDePalabras/
 
